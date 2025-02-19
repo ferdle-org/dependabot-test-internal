@@ -1,7 +1,6 @@
 name: Caching Primes
 
-on:
-  workflow_dispatch:
+on: push
 
 jobs:
   build:
@@ -13,10 +12,15 @@ jobs:
     - name: Cache Primes
       id: cache-primes
       uses: actions/cache@v4
+      with:
+        path: prime-numbers
+        key: ${{ runner.os }}-primes-${{ hashFiles('generate-primes.sh') }}
+        restore-keys: |
+          ${{ runner.os }}-primes-
 
     - name: Generate Prime Numbers
       if: steps.cache-primes.outputs.cache-hit != 'true'
-      run: /generate-primes.sh -d prime-numbers
+      run: ./generate-primes.sh -d prime-numbers
 
     - name: Use Prime Numbers
-      run: /primes.sh -d prime-numbers
+      run: ./primes.sh -d prime-numbers
